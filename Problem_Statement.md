@@ -20,17 +20,28 @@ The output should consist of 6 lines. Each line should contain the curse alphabe
 ### Example - 
 ##### Input
 AB Brown
+
 AC Purple
+
 BD Brown
+
 DE Brown
+
 EF Teal
+
 AF Purple
+
 112
 
 ##### Output
 A Red 11
+
 B Green 17
+
 C Blue 23
+
 D Red 13
+
 E Green 19
+
 F Blue 29

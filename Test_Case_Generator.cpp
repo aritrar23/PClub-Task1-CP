@@ -1,27 +1,37 @@
 #include "testlib.h"
-#include <iostream>
-#include <vector>
-#include <string>
-#include <numeric>
-#include <algorithm>
-#include <set>
+#include <bits/stdc++.h>
 
-bool is_prime(int num) {
-    if (num < 2) return false;
-    for (int i = 2; i * i <= num; ++i) {
-        if (num % i == 0) return false;
+const int MAX_N = 110000;
+std::vector<int> gprimes;
+std::vector<bool> is_prime(MAX_N + 1, true);
+
+// We use the sieve of Erastosthenes to reduce the time complexity
+void sieve() {
+    is_prime[0] = is_prime[1] = false;
+    for (int i = 2; i <= sqrt(MAX_N); ++i) {
+        if (is_prime[i]) {
+            for (int j = i * i; j <= MAX_N; j += i) {
+                is_prime[j] = false;
+            }
+        }
     }
-    return true;
+    for (int i = 2; i <= MAX_N; ++i) {
+        if (is_prime[i]) {
+            gprimes.push_back(i);
+        }
+    }
 }
 
 std::vector<int> generate_consecutive_primes(int start, int count) {
     std::vector<int> primes;
     int num = start;
-    while ((int)primes.size() < count) {
-        if (is_prime(num)) {
-            primes.push_back(num);
-        }
-        ++num;
+    while (1) {
+        if (is_prime[num]) break;
+        else num++;
+    }
+    auto index = lower_bound(gprimes.begin(), gprimes.end(), num);  //We are using binary search here to make the code more efficient
+    for (int i=0; i < count; i++) {
+        primes.push_back(*(index+i));
     }
     return primes;
 }
@@ -38,13 +48,11 @@ std::string combine_colors(const std::string& c1, const std::string& c2) {
 
 int main(int argc, char* argv[]) {
     registerGen(argc, argv, 1);
-
-    const int num_test_cases = 7;
-    // We generate 7 test cases with this code
-    for (int test_case = 0; test_case < num_test_cases; ++test_case) {
+    sieve();
+    for (int test_case = 0; test_case < 7; ++test_case) {
         std::vector<char> curses = {'A', 'B', 'C', 'D', 'E', 'F'};
         std::vector<std::string> colors = {"Red", "Green", "Blue"};
-
+        
         // We assign colors randomly to each curse
         std::vector<std::string> curse_colors(curses.size());
         for (int i = 0; i < (int)curses.size(); ++i) {
@@ -52,12 +60,22 @@ int main(int argc, char* argv[]) {
         }
 
         // We generate 6 consecutive primes starting from a random prime number
-        int start_prime = rnd.next(2, 100000) + test_case * 100; // Ensuring different starting points for each test case
+        int start_prime = rnd.next(2, 100000);
         std::vector<int> primes = generate_consecutive_primes(start_prime, 6);
         int sum_primes = std::accumulate(primes.begin(), primes.end(), 0);
 
-        // We generate random pairs of curses
+        //We ensure each curse is included in at least one pair
         std::set<std::pair<char, char>> pairs_set;
+        std::vector<char> remaining_curses = curses;
+        while (pairs_set.size() < 3) {
+            char first = remaining_curses.back();
+            remaining_curses.pop_back();
+            char second = remaining_curses.back();
+            remaining_curses.pop_back();
+            pairs_set.insert(std::minmax(first, second));
+        }
+
+        // We fill remaining pairs randomly, ensuring no duplicates
         while (pairs_set.size() < 6) {
             char first = curses[rnd.next(0, 5)];
             char second = curses[rnd.next(0, 5)];
@@ -66,17 +84,16 @@ int main(int argc, char* argv[]) {
             }
         }
 
+        // We generate the color combinations for the pairs
         std::vector<std::pair<std::string, std::string>> pairs;
         for (const auto& p : pairs_set) {
             pairs.push_back({std::string() + p.first + p.second, combine_colors(curse_colors[p.first - 'A'], curse_colors[p.second - 'A'])});
         }
 
-    
         for (const auto& pair : pairs) {
             std::cout << pair.first << " " << pair.second << "\n";
         }
 
-        
         std::cout << sum_primes << "\n";
 
         struct CurseInfo {
@@ -103,7 +120,7 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        //We assign potencies based on sorted order
+        // We assign potencies based on sorted order
         for (int i = 0; i < (int)curse_infos.size(); ++i) {
             curse_infos[i].potency = primes[i];
         }
@@ -112,14 +129,15 @@ int main(int argc, char* argv[]) {
             return a.curse < b.curse;
         });
 
-        
-        //Please uncomment the following if you want to view the correct answer of each test case
+        // Uncomment the following to view the correct answers of each test case
 //        for (const auto& info : curse_infos) {
 //            std::cout << info.curse << " " << info.color << " " << info.potency << "\n";
 //        }
 
-        std::cout << "===\n";
+        if (test_case < 6) {
+            std::cout << "=====\n";
+        }
     }
-    
+
     return 0;
 }

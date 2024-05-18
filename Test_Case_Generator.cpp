@@ -46,54 +46,74 @@ std::string combine_colors(const std::string& c1, const std::string& c2) {
     return "";
 }
 
+bool all_pairs_same_color(const std::vector<std::pair<std::string, std::string>>& pairs) {
+    std::string first_color = pairs[0].second;
+    for (const auto& pair : pairs) {
+        if (pair.second != first_color) {
+            return false;
+        }
+    }
+    return true;
+}
+
 int main(int argc, char* argv[]) {
     registerGen(argc, argv, 1);
+    
+    //We get the no. of test cases
+    int test_count = opt<int>("test-count");
     sieve();
-    for (int test_case = 0; test_case < 7; ++test_case) {
+    for (int test_case = 0; test_case < test_count; ++test_case) {
         std::vector<char> curses = {'A', 'B', 'C', 'D', 'E', 'F'};
         std::vector<std::string> colors = {"Red", "Green", "Blue"};
+
+        std::vector<std::string> curse_colors;
+        std::vector<std::pair<std::string, std::string>> pairs;
         
-        // We assign colors randomly to each curse
-        std::vector<std::string> curse_colors(curses.size());
-        for (int i = 0; i < (int)curses.size(); ++i) {
-            curse_colors[i] = colors[rnd.next(0, 2)];
-        }
+        // Ensure valid pairs
+        do {
+            // We assign colors randomly to each curse
+            curse_colors.clear();
+            curse_colors.resize(curses.size());
+            for (int i = 0; i < (int)curses.size(); ++i) {
+                curse_colors[i] = colors[rnd.next(0, 2)];
+            }
 
-        // We generate 6 consecutive primes starting from a random prime number
-        int start_prime = rnd.next(2, 100000);
-        std::vector<int> primes = generate_consecutive_primes(start_prime, 6);
-        int sum_primes = std::accumulate(primes.begin(), primes.end(), 0);
-
-        //We ensure each curse is included in at least one pair
-        std::set<std::pair<char, char>> pairs_set;
-        std::vector<char> remaining_curses = curses;
-        while (pairs_set.size() < 3) {
-            char first = remaining_curses.back();
-            remaining_curses.pop_back();
-            char second = remaining_curses.back();
-            remaining_curses.pop_back();
-            pairs_set.insert(std::minmax(first, second));
-        }
-
-        // We fill remaining pairs randomly, ensuring no duplicates
-        while (pairs_set.size() < 6) {
-            char first = curses[rnd.next(0, 5)];
-            char second = curses[rnd.next(0, 5)];
-            if (first != second) {
+            // Generate pairs
+            pairs.clear();
+            std::set<std::pair<char, char>> pairs_set;
+            std::vector<char> remaining_curses = curses;
+            while (pairs_set.size() < 3) {
+                char first = remaining_curses.back();
+                remaining_curses.pop_back();
+                char second = remaining_curses.back();
+                remaining_curses.pop_back();
                 pairs_set.insert(std::minmax(first, second));
             }
-        }
 
-        // We generate the color combinations for the pairs
-        std::vector<std::pair<std::string, std::string>> pairs;
-        for (const auto& p : pairs_set) {
-            pairs.push_back({std::string() + p.first + p.second, combine_colors(curse_colors[p.first - 'A'], curse_colors[p.second - 'A'])});
-        }
+            // Fill remaining pairs randomly, ensuring no duplicates
+            while (pairs_set.size() < 6) {
+                char first = curses[rnd.next(0, 5)];
+                char second = curses[rnd.next(0, 5)];
+                if (first != second) {
+                    pairs_set.insert(std::minmax(first, second));
+                }
+            }
 
+            // Generate the color combinations for the pairs
+            for (const auto& p : pairs_set) {
+                pairs.push_back({std::string() + p.first + p.second, combine_colors(curse_colors[p.first - 'A'], curse_colors[p.second - 'A'])});
+            }
+
+        } while (all_pairs_same_color(pairs));
+
+        // Print pairs and sum of primes
         for (const auto& pair : pairs) {
             std::cout << pair.first << " " << pair.second << "\n";
         }
 
+        int start_prime = rnd.next(2, 100000);
+        std::vector<int> primes = generate_consecutive_primes(start_prime, 6);
+        int sum_primes = std::accumulate(primes.begin(), primes.end(), 0);
         std::cout << sum_primes << "\n";
 
         struct CurseInfo {
@@ -129,14 +149,10 @@ int main(int argc, char* argv[]) {
             return a.curse < b.curse;
         });
 
-        // Uncomment the following to view the correct answers of each test case
-//        for (const auto& info : curse_infos) {
-//            std::cout << info.curse << " " << info.color << " " << info.potency << "\n";
-//        }
-
-        if (test_case < 6) {
-            std::cout << "=====\n";
-        }
+//         Uncomment the following to view the correct answers of each test case
+//         for (const auto& info : curse_infos) {
+//             std::cout << info.curse << " " << info.color << " " << info.potency << "\n";
+//         }
     }
 
     return 0;

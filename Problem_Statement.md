@@ -12,7 +12,7 @@ Voldemort is upto his evils antics as usual. This time, he has kidnapped Ginny a
 Help Harry solve this task as quickly as possible and rescue his friends Ron & Hermione, and especially his beloved Ginny.
 
 ## Input : 
-Each of the first 6 lines contains a pair of curses (say AB) and the respective colour it produces (say Brown). So each line will be of the form (AB Brown). The 7th line contains a single integer s (1 <= s <= 10^6) - the sum of the 6 curses' potencies (i.e., the sum of 6 consecutive primes).
+Each of the first 6 lines contains a pair of curses (say AB) and the respective colour it produces (say Brown). (Note - Each curse letter will appear at least once in these 6 pairs, hence there will always exist a unique solution to the problem). So each line will be of the form (AB Brown). The 7th line contains a single integer s (1 <= s <= 10^6) - the sum of the 6 curses' potencies (i.e., the sum of 6 consecutive primes).
 
 ## Output: 
 The output should consist of 6 lines. Each line should contain the curse alphabet (in alphabetical order) followed by its colour and potency (of the form A Red 7).

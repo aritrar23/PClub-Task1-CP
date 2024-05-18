@@ -61,6 +61,7 @@ int main(int argc, char* argv[]) {
     
     //We get the no. of test cases
     int test_count = opt<int>("test-count");
+    std::cout << test_count << "\n";
     sieve();
     for (int test_case = 0; test_case < test_count; ++test_case) {
         std::vector<char> curses = {'A', 'B', 'C', 'D', 'E', 'F'};
